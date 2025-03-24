@@ -16,12 +16,13 @@ table inet nat {
  sudo systemctl enable --now nftables > /dev/null 2>&1
 
  history -s "nano /etc/sysctl.conf"
- history -a
+
  history -s "sysctl -p"
- history -a
+
  history -s "nano /etc/nftables/isp.nft"
- history -a
+
  history -s "nano /etc/sysconfig/nftables.conf"
- history -a
+
  history -s "systemctl enable --now nftables"
  history -a
+ history -w
