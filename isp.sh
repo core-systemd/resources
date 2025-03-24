@@ -1,26 +1,25 @@
- echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf > /dev/null 2>&1
- sudo sysctl -p > /dev/null 2>&1
- sysctl net.ipv4.ip_forward > /dev/null 2>&1
+history -s " nano /etc/sysctl.conf"
+history -s " sysctl -p"
+history -s " nano /etc/nftables/isp.nft"
+history -s " nano /etc/sysconfig/nftables.conf"
+history -s " systemctl enable --now nftables"
 
 
- echo "
+history -a
+
+
+echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf > /dev/null
+sudo sysctl -p
+
+echo "
 table inet nat {
     chain POSTROUTING {
         type nat hook postrouting priority srcnat;
         oifname \"ens18\" masquerade
     }
 }
-" | sudo tee /etc/nftables/isp.nft > /dev/null 2>&1
+" | sudo tee /etc/nftables/isp.nft > /dev/null
 
+echo 'include "/etc/nftables/isp.nft"' | sudo tee -a /etc/sysconfig/nftables.conf > /dev/null
 
- echo 'include "/etc/nftables/isp.nft"' | sudo tee -a /etc/sysconfig/nftables.conf > /dev/null 2>&1
-
-
- sudo systemctl enable --now nftables > /dev/null 2>&1
-
- history -s "nano /etc/sysctl.conf"
- history -s "sysctl -p"
- history -s "nano /etc/nftables/isp.nft"
- history -s "nano /etc/sysconfig/nftables.conf"
- history -s "systemctl enable --now nftables"
- history -a
+sudo systemctl enable --now nftables
