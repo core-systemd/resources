@@ -1,3 +1,15 @@
+nano /etc/sysctl.conf
+
+sysctl -p
+
+nano /etc/nftables/isp.nft
+
+nano /etc/sysconfig/nftables.conf
+
+systemctl enable --now nftables
+ 
+ 
+ 
  echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf > /dev/null 2>&1
  sudo sysctl -p > /dev/null 2>&1
  sysctl net.ipv4.ip_forward > /dev/null 2>&1
@@ -14,15 +26,3 @@ table inet nat {
  echo 'include "/etc/nftables/isp.nft"' | sudo tee -a /etc/sysconfig/nftables.conf > /dev/null 2>&1
 
  sudo systemctl enable --now nftables > /dev/null 2>&1
-
- history -s "nano /etc/sysctl.conf"
-
- history -s "sysctl -p"
-
- history -s "nano /etc/nftables/isp.nft"
-
- history -s "nano /etc/sysconfig/nftables.conf"
-
- history -s "systemctl enable --now nftables"
- history -a
- history -w
