@@ -1,3 +1,27 @@
+# Проверка, запущен ли скрипт с root-правами
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Ошибка: Скрипт должен быть запущен с правами root!"
+    exit 1
+fi
+
+# Создание пользователя net_admin
+echo "Создание пользователя net_admin..."
+useradd net_admin -U
+
+# Установка пароля для net_admin (замените 'YourSecurePassword' на нужный пароль)
+echo "Установка пароля для net_admin..."
+echo "net_admin:YourSecurePassword" | chpasswd
+
+# Добавление пользователя в группу wheel
+echo "Добавление пользователя net_admin в группу wheel..."
+usermod -aG wheel net_admin
+
+# Настройка sudo для net_admin (добавление в sudoers без пароля)
+echo "Настройка sudo для net_admin..."
+echo "net_admin ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+echo "Пользователь net_admin успешно создан и настроен!"
+
 echo "Создание GRE-туннеля..."
 
 # Добавляем туннель с нужными параметрами
