@@ -22,29 +22,7 @@ echo "net_admin ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 echo "Пользователь net_admin успешно создан и настроен!"
 
-echo "Создание GRE-туннеля..."
 
-# Добавляем туннель с нужными параметрами
-nmcli connection add type tun name "HQ-RTR-GRE" ifname "tun1" con-name "HQ-RTR-GRE" \
-    ipv4.method manual ipv4.addresses 10.10.0.1/30 ipv4.gateway 10.10.0.1
-
-# Настроим параметры туннеля: родительский интерфейс (ens18), режим GRE, локальный и удаленный IP
-nmcli connection modify "HQ-RTR-GRE" \
-    ipv4.local 172.16.4.2 ipv4.remote 172.16.5.2 \
-    ipv4.dns "" ipv4.never-default yes \
-    tunnel.remote 172.16.5.2 tunnel.local 172.16.4.2 \
-    tunnel.mode gre
-
-# Указываем интерфейс ens18 как родительский
-nmcli connection modify "HQ-RTR-GRE" connection.interface-name tun1 \
-    connection.id "HQ-RTR-GRE" ipv4.method manual ipv4.addresses "10.10.0.1/30" \
-    ipv4.gateway "10.10.0.1" ipv4.dns "" ipv4.never-default yes
-
-# Активируем созданное подключение
-echo "Активируем GRE-туннель..."
-nmcli connection up "HQ-RTR-GRE"
-
-echo "GRE-туннель настроен и активирован успешно!"
 nmcli connection modify tun1 ip-tunnel.ttl 64
 
 # Устанавливаем Open vSwitch и NetworkManager-ovs
