@@ -1,13 +1,4 @@
-nano /etc/sysctl.conf
 
-sysctl -p
-
-nano /etc/nftables/isp.nft
-
-nano /etc/sysconfig/nftables.conf
-
-systemctl enable --now nftables
- 
  
  
  echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf > /dev/null 2>&1
