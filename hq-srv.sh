@@ -152,6 +152,6 @@ named-checkconf -z
 # Перезапуск службы DNS
 systemctl restart named
 systemctl enable named
-
+systemctl enable --now named
 echo "Настройка BIND завершена."
 
