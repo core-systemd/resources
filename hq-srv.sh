@@ -73,3 +73,85 @@ systemctl restart sshd
 
 # Вывод информации
 echo "Настройка безопасного SSH-доступа завершена. Теперь используйте порт 2024."
+
+
+sudo dnf install -y bind bind-utils
+
+# Резервное копирование оригинального конфигурационного файла
+cp /etc/named.conf /etc/named.conf.backup
+
+# Настройка named.conf
+cat > /etc/named.conf <<EOF
+options {
+    listen-on port 53 { 127.0.0.1; 192.168.0.0/26; 192.168.100.64/28; any; };
+    listen-on-v6 port 53 { none; };
+    directory "/var/named";
+    dump-file "/var/named/data/cache_dump.db";
+    statistics-file "/var/named/data/named_stats.txt";
+    memstatistics-file "/var/named/data/named_mem_stats.txt";
+    allow-query { any; };
+    recursion yes;
+    forwarders { 77.88.8.8; 77.88.8.1; };
+    dnssec-validation no;
+};
+
+zone "au-team.irpo" IN {
+    type master;
+    file "master/au-team.db";
+};
+
+zone "100.168.192.in-addr.arpa" IN {
+    type master;
+    file "master/au-team_rev.db";
+};
+EOF
+
+# Проверка конфигурации
+named-checkconf
+
+# Создаем каталог для мастер-зон
+mkdir -p /var/named/master
+
+# Создание файла зоны прямого просмотра
+cp /var/named/named.localhost /var/named/master/au-team.db
+cat > /var/named/master/au-team.db <<EOF
+\$TTL 86400
+@   IN  SOA au-team.irpo. root.au-team.irpo. (
+        2024032501 ; Serial
+        3600       ; Refresh
+        1800       ; Retry
+        604800     ; Expire
+        86400      ; Minimum TTL
+    )
+@   IN  NS  ns.au-team.irpo.
+ns  IN  A   192.168.0.1
+EOF
+
+# Создание файла зоны обратного просмотра
+cp /var/named/named.loopback /var/named/master/au-team_rev.db
+cat > /var/named/master/au-team_rev.db <<EOF
+\$TTL 86400
+@   IN  SOA au-team.irpo. root.au-team.irpo. (
+        2024032501 ; Serial
+        3600       ; Refresh
+        1800       ; Retry
+        604800     ; Expire
+        86400      ; Minimum TTL
+    )
+@   IN  NS  ns.au-team.irpo.
+1   IN  PTR ns.au-team.irpo.
+EOF
+
+# Установка прав доступа
+chown -R root:named /var/named/master
+chmod 0640 /var/named/master/*
+
+# Проверка конфигурации с зонами
+named-checkconf -z
+
+# Перезапуск службы DNS
+systemctl restart named
+systemctl enable named
+
+echo "Настройка BIND завершена."
+
